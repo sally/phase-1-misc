@@ -1,0 +1,98 @@
+SELECT * FROM invoices;
+SELECT * FROM artists;
+SELECT name FROM artists;
+SELECT first_name, last_name FROM employees;
+SELECT name FROM media_types;
+SELECT * FROM employees ORDER BY hire_date desc;
+SELECT hire_date, first_name, last_name FROM employees WHERE hire_date < '2011-02-15';
+SELECT * FROM employees WHERE first_name LIKE 'A%';
+SELECT * FROM invoices WHERE billing_city = 'Redmond';
+SELECT * FROM invoices WHERE billing_city = 'Berlin' AND billing_country = 'Germany';
+SELECT * FROM invoices WHERE billing_country = 'Canada';
+SELECT * FROM invoices WHERE billing_state = 'AB' AND billing_country = 'Canada';
+SELECT * FROM invoices WHERE billing_city = 'Edmonton' AND billing_state = 'AB';
+SELECT billing_address FROM invoices WHERE billing_city = 'Redmond' AND billing_state = 'WA';
+SELECT * FROM invoices WHERE total > 5.00 AND billing_city = 'Reno' AND billing_state = 'NV'
+SELECT * FROM tracks WHERE composer IS null;
+SELECT * FROM customers WHERE company IS null;
+SELECT * FROM invoices WHERE billing_city = 'Redmond' AND billing_state = 'WA' ORDER BY total ASC;
+SELECT * FROM invoices WHERE billing_city = 'Redmond' AND billing_state = 'WA' ORDER BY total DESC;
+SELECT * FROM invoices WHERE billing_country = 'Germany' Order BY total DESC;
+SELECT * FROM invoices WHERE billing_country = 'Germany' ORDER BY total DESC LIMIT 10;
+SELECT * FROM invoices WHERE billing_city = 'Boston' ORDER BY total DESC LIMIT 10;
+SELECT * FROM invoices WHERE billing_city = 'Boston' ORDER BY total ASC LIMIT 10;
+SELECT billing_address FROM invoices WHERE billing_city = 'Cupertino' ORDER BY total DESC LIMIT 3;
+SELECT * FROM invoices WHERE billing_city = 'Cupertino' OR billing_city = 'Mountain View';
+SELECT COUNT(*) FROM invoices WHERE billing_city = 'Santiago'; 
+SELECT country,COUNT(*) FROM customers GROUP BY country; (http://stackoverflow.com/questions/1346345/mysql-count-occurrences-of-distinct-values)
+SELECT unit_price,COUNT(*) FROM tracks GROUP BY unit_price; 
+SELECT name FROM artists WHERE name like '%smith%';
+SELECT name FROM artists WHERE name like '%smith';
+SELECT city,count(*) FROM employees GROUP BY city;
+SELECT country,count(*) as count FROM customers GROUP BY country ORDER BY count DESC LIMIT 3;  (http://stackoverflow.com/questions/1346345/mysql-count-occurrences-of-distinct-values worked because stored country,count(*) as variable “count”)
+SELECT billing_city,count(*) as count FROM invoices GROUP BY billing_city ORDER BY count DESC LIMIT 5;
+[List all artist names alongside the titles of their albums]
+SELECT artists.name, albums.title FROM artists JOIN albums ON artists.id = albums.artist_id;
+[List all album names along with their track titles]
+SELECT tracks.name, albums.title FROM albums JOIN tracks ON albums.id = tracks.album_id;
+( Does the order of FROM table1 JOIN table2 matter? DOESN’T MATTER BITCHES!)
+[Alphabetical Order shit]
+SELECT artists.name, albums.title FROM albums JOIN artists ON artists.id = albums.artist_id ORDER BY artists.name; 
+SELECT customers.first_name, customers.last_name, invoices.total FROM customers JOIN invoices ON customers.id = invoices.customer_id ORDER BY total DESC;
+SELECT *,MAX(invoices.total) FROM customers JOIN invoices ON customers.id = invoices.customer_id; 
+[Give me a list of every Aerosmith album]
+SELECT *
+FROM albums
+JOIN artists
+ON albums.artist_id = artists.id
+WHERE artists.name = 'Aerosmith';
+[Give me a list of albums that contains a song called "Midnight”]
+SELECT *
+FROM albums
+JOIN tracks
+ON albums.id = tracks.album_id
+WHERE tracks.name like 'Midnight';
+[Give me a list of every artist who has performed the song "Midnight”]
+[https://sqltutor.devbootcamp.com/challenges/42]
+SELECT artists.name
+FROM artists
+JOIN albums
+ON artists.id = albums.artist_id
+JOIN tracks
+ON albums.id = tracks.album_id
+WHERE tracks.name = 'Midnight';
+[Give me a count of the number of albums by Iron Maiden]
+SELECT count(*)
+FROM albums
+JOIN artists
+ON albums.artist_id = artists.id
+WHERE artists.name = 'Iron Maiden';
+[List all artists and the number of albums they each have]
+SELECT artists.name,count(albums.album_id)
+FROM artists
+JOIN albums
+ON artists.id = albums.artist_id
+GROUP BY albums.album_id, artists.name
+ORDER BY artists.name
+List all albums next to the number of tracks they each have
+SELECT albums.title,count(tracks.album_id)
+FROM albums
+JOIN tracks
+ON albums.id = tracks.album_id
+GROUP BY albums.title, tracks.album_id
+ORDER BY albums.title;
+Find the artist with the most albums
+SELECT artists.*,count(albums.artist_id) as count
+FROM artists
+JOIN albums
+ON artists.id = albums.artist_id
+GROUP BY artists.*, albums.artist_id, artists.id
+ORDER BY count DESC LIMIT 1
+—
+SELECT albums.*,count(tracks.album_id) as count
+FROM albums
+JOIN tracks
+ON albums.id = tracks.album_id
+GROUP BY albums.*,tracks.album_id, albums.id
+ORDER BY count DESC LIMIT 1
+—
